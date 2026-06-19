@@ -163,7 +163,7 @@ export const aiEnhance = async (req, res) => {
 
 export const atsScore = async (req, res) => {
   try {
-    const { resumeData } = req.body;
+    const { resumeData, jobDescription } = req.body;
     
     // Convert resume data to a readable string for the prompt
     const resumeText = `
@@ -176,7 +176,9 @@ Projects: ${resumeData.project?.map(p => `${p.name}: ${p.description}`).join('\n
 Skills: ${resumeData.skills?.map(s => s.name).join(', ')}
     `;
 
-    const prompt = `You are an expert ATS (Applicant Tracking System) analyzer. Review the following resume and provide an evaluation in JSON format strictly matching this structure:
+    const prompt = `You are an expert ATS (Applicant Tracking System). You are given a Resume and a Target Job Description. Calculate the ATS match score (0-100) based on how well the resume matches the job description. Consider keywords, skills, experience, and education. If no job description is provided, calculate a general ATS score based on resume best practices.
+
+Provide the evaluation in JSON format strictly matching this structure:
 {
   "score": 85,
   "strengths": ["string", "string"],
@@ -184,6 +186,9 @@ Skills: ${resumeData.skills?.map(s => s.name).join(', ')}
   "missing_keywords": ["string", "string"]
 }
 Only return the valid JSON, no markdown formatting or extra text.
+
+Target Job Description:
+${jobDescription ? jobDescription.substring(0, 3000) : 'None provided'}
 
 Resume:
 ${resumeText.substring(0, 3000)}`;
